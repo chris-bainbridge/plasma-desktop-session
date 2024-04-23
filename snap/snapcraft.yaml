@@ -47,6 +47,15 @@ apps:
       - timezone-control
       - shell-session-locale-files
 
+  xdg-desktop-portal-kde:
+    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-freedesktop-impl-portal-kde
+    restart-delay: 1s
+
   pipewire:
     command: run.sh /usr/bin/pipewire
     daemon: simple
@@ -212,6 +221,46 @@ slots:
   audio-record: null
   pulseaudio: null
   desktop: null
+  dbus-kde-startup:
+    interface: dbus
+    bus: session
+    name: org.kde.Startup
+  dbus-kde-ksplash:
+    interface: dbus
+    bus: session
+    name: org.kde.KSplash
+  dbus-kde-kwinwrapper:
+    interface: dbus
+    bus: session
+    name: org.kde.KWinWrapper
+  dbus-kde-kwin:
+    interface: dbus
+    bus: session
+    name: org.kde.KWin
+  dbus-kde-kded6:
+    interface: dbus
+    bus: session
+    name: org.kde.kded6
+  dbus-kde-kglobalaccel:
+    interface: dbus
+    bus: session
+    name: org.kde.kglobalaccel
+  dbus-kde-screensaver:
+    interface: dbus
+    bus: session
+    name: org.kde.screensaver
+  dbus-kde-keyboard:
+    interface: dbus
+    bus: session
+    name: org.kde.keyboard
+  dbus-kde-kcminit:
+    interface: dbus
+    bus: session
+    name: org.kde.kcminit
+  dbus-freedesktop-impl-portal-kde:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.impl.portal.desktop.kde
   dbus-canonical-unity:
     interface: dbus
     bus: session
