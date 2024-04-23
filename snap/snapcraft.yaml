@@ -200,6 +200,7 @@ plugs:
       - /etc/pulse
       - /etc/shells
       - /etc/xdg/autostart
+      - /etc/xdg/menus
       - /run/udev/tags/seat
       - /etc/default/im-config
       - /etc/X11/xinit/xinputrc
