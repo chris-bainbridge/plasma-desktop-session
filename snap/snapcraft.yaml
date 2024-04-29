@@ -260,6 +260,14 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.kcminit
+  dbus-kde-krunner:
+    interface: dbus
+    bus: session
+    name: org.kde.krunner
+  dbus-kde-plasmashell:
+    interface: dbus
+    bus: session
+    name: org.kde.plasmashell
   dbus-freedesktop-impl-portal-kde:
     interface: dbus
     bus: session
