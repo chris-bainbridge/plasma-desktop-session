@@ -210,9 +210,11 @@ plugs:
     write:
       - $HOME/.pam_environment
       - $HOME/.xinputrc
+      - $HOME/.gtkrc-2.0
   shell-config-files:
     interface: system-files
     read:
+      - /etc/alsa
       - /etc/fonts
       - /etc/glvnd
       - /etc/gnome/defaults.list
