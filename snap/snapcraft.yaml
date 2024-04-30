@@ -46,6 +46,14 @@ apps:
       - timeserver-control
       - timezone-control
       - shell-session-locale-files
+      - plasma-system-files
+      - network-manager
+      - shutdown
+      - udisks2
+      - upower-observe
+      - login-session-control
+      - login-session-observe
+      - system-observe
 
         #  xdg-desktop-portal-kde:
         #    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
@@ -217,7 +225,14 @@ plugs:
       - /etc/default/im-config
       - /etc/X11/xinit/xinputrc
       - /etc/default/locale
+  plasma-system-files:
+    interface: system-files
+    read:
+      - /etc/xdg
+      - /etc/xdg/plasma-workspace
+      - /proc/sys/kernel/core_pattern
   upower-observe: null
+  udisks2: null
 
 slots:
   audio-playback: null
