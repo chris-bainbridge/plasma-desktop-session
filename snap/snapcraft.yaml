@@ -257,6 +257,10 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.KWin
+  dbus-kde-ksmserver:
+    interface: dbus
+    bus: session
+    name: org.kde.ksmserver
   dbus-kde-kded6:
     interface: dbus
     bus: session
@@ -265,6 +269,14 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.kglobalaccel
+  dbus-kde-kglobalaccel2:
+    interface: dbus
+    bus: session
+    name: org.kde.KGlobalAccel
+  dbug-kde-gtkconfig:
+    interface: dbus
+    bus: session
+    name: org.kde.GtkConfig
   dbus-kde-screensaver:
     interface: dbus
     bus: session
@@ -277,6 +289,30 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.kcminit
+  dbus-kde-kaccess:
+    interface: dbus
+    bus: session
+    name: org.kde.kaccess
+  dbus-kde-kappmenu:
+    interface: dbus
+    bus: session
+    name: org.kde.kappmenu
+  dbus-kde-baloo:
+    interface: dbus
+    bus: session
+    name: org.kde.baloo
+  dbus-kde-solid:
+    interface: dbus
+    bus: session
+    name: org.kde.Solid
+  dbus-kde-powerdevil:
+    interface: dbus
+    bus: session
+    name: org.kde.powerdevil
+  dbus-kde-powerdevil2:
+    interface: dbus
+    bus: session
+    name: local.org_kde_powerdevil
   dbus-kde-krunner:
     interface: dbus
     bus: session
@@ -285,10 +321,38 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.plasmashell
+  dbus-kde-plasmanetworkmanagement:
+    interface: dbus
+    bus: session
+    name: org.kde.plasmanetworkmanagement
+  dbus-kde-discover-notifier:
+    interface: dbus
+    bus: session
+    name: org.kde.discover.notifier
+  dbus-kde-polkit-agent:
+    interface: dbus
+    bus: session
+    name: org.kde.polkit-kde-authentication-agent
+  dbus-kde-kf6auth:
+    interface: dbus
+    bus: session
+    name: org.kde.kf6auth
+  dbus-kde-activitymanager:
+    interface: dbus
+    bus: session
+    name: org.kde.ActivityManager
+  dbus-kde-plasma-welcome:
+    interface: dbus
+    bus: session
+    name: org.kde.plasma-welcome
   dbus-freedesktop-impl-portal-kde:
     interface: dbus
     bus: session
     name: org.freedesktop.impl.portal.desktop.kde
+  dbus-freedesktop-powermanagement:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.PowerManagement
   dbus-canonical-unity:
     interface: dbus
     bus: session
