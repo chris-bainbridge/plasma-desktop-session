@@ -1,11 +1,11 @@
-name: ubuntu-desktop-session
-adopt-info: ubuntu-desktop-session
+name: plasma-desktop-session
+adopt-info: plasma-desktop-session
 build-base: core20
 passthrough:
-  base: core22-desktop
-summary: Ubuntu Desktop Session for the Ubuntu Core Desktop
+  base: plasma-core22-desktop
+summary: Plasma Desktop Session for KDE Neon Core
 description: |
-  A strictly confined Ubuntu Desktop session for Ubuntu Core Desktop.
+  Strictly confined Plasma and Ubuntu desktop sessions for KDE Neon Core.
 
 grade: stable
 confinement: strict
@@ -576,7 +576,7 @@ parts:
   scripts:
     plugin: dump
     source: ./scripts
-  ubuntu-desktop-session:
+  plasma-desktop-session:
     plugin: nil
     build-packages:
       - git
