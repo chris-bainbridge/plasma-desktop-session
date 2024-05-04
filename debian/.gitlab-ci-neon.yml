@@ -5,3 +5,5 @@ include:
   - project: sysadmin/ci-utilities
     file:
       - /gitlab-templates/snap-snapcraft-lxd.yml
+variables:
+  KDECI_GITLAB_TOKEN: "None"
