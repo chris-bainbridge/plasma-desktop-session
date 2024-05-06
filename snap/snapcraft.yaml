@@ -33,6 +33,7 @@ apps:
       - timeserver-control
       - timezone-control
       - shell-session-locale-files
+      - desktop-launch
 
   plasma-desktop-session:
     command: run-plasma-session.sh
