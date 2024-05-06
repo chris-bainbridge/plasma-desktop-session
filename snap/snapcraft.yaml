@@ -39,6 +39,7 @@ apps:
     slots:
       - wayland
       - x11
+      - desktop
     plugs:
       - account-control
       - locale-control
@@ -46,7 +47,8 @@ apps:
       - timeserver-control
       - timezone-control
       - shell-session-locale-files
-      - desktop-session-control
+      - desktop-launch
+      - systemd-user-control
 
         #  xdg-desktop-portal-kde:
         #    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
