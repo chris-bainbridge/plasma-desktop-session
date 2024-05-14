@@ -50,6 +50,7 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
+      - snapd-control
 
         #  xdg-desktop-portal-kde:
         #    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
