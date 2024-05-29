@@ -52,17 +52,18 @@ apps:
       - systemd-user-control
       - snapd-control
 
-        #  xdg-desktop-portal-kde:
-        #    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
-        #    slots:
-        #      - wayland
-        #      - x11
-        #    daemon: dbus
-        #    passthrough:
-        #      daemon-scope: user
-        #      activates-on:
-        #        - dbus-freedesktop-impl-portal-kde
-        #    restart-delay: 1s
+  xdg-desktop-portal-kde:
+    command: run-portal.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
+    slots:
+      - wayland
+      - x11
+      - desktop
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-freedesktop-impl-portal-kde
+    restart-delay: 1s
 
   pipewire:
     command: run.sh /usr/bin/pipewire
