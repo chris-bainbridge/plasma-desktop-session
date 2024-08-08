@@ -17,6 +17,7 @@ chmod 700 $XDG_RUNTIME_DIR
 
 export PULSE_SERVER=unix:/run/user/`id -u`/pulse/native
 export XDG_CURRENT_DESKTOP=KDE
+export _KDE_APPLICATIONS_AS_FORKING=1
 
 if ! grep "^snap$" $HOME/.hidden 2>&1 > /dev/null; then
   echo "snap" >> $HOME/.hidden
