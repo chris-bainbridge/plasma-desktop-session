@@ -33,10 +33,14 @@ apps:
       - time-control
       - timeserver-control
       - timezone-control
+      - network-manager
+      - udisks2
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
       - snapd-control
+      - mpris
+      - dbus-powerprofiles
 
   xdg-desktop-portal-kde:
     command: run-portal.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
@@ -50,6 +54,405 @@ apps:
       activates-on:
         - dbus-freedesktop-impl-portal-kde
     restart-delay: 1s
+
+  plasma-kactivitymanagerd:
+    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/kactivitymanagerd
+    slots:
+      - wayland
+      - x11
+      - desktop
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-activitymanager
+    restart-delay: 1s
+
+  plasma-ksplash:
+    command: run-after.sh org.kde.KWinWrapper /usr/bin/ksplashqml
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: oneshot
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-ksplash
+    restart-condition: never
+
+  plasma-logoutprompt:
+    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/ksmserver-logout-greeter
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+      - shutdown
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-logoutprompt
+    restart-condition: never
+
+  plasma-shutdown:
+    command: run.sh /usr/bin/plasma-shutdown
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - shutdown
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-shutdown
+    restart-condition: never
+
+  plasma-kcminit:
+    command: run-after.sh org.kde.KWinWrapper /usr/bin/kcminit_startup
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: forking
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-kcminit
+    restart-condition: never
+
+  plasma-ksmserver:
+    command: run-after.sh org.kde.kcminit /usr/bin/ksmserver
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    after:
+      - plasma-kwin-wayland
+      - plasma-kcminit
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-ksmserver
+    restart-delay: 1s
+
+  plasma-kwin-wayland:
+    command: run-portal.sh /usr/bin/kwin_wayland_wrapper --xwayland
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - shutdown
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-kwinwrapper
+    restart-delay: 1s
+
+  plasma-plasmashell:
+    command: run.sh /usr/bin/plasmashell --no-respawn
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - shutdown
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-plasmashell
+    restart-delay: 1s
+
+  plasma-krunner:
+    command: run.sh /usr/bin/krunner --daemon
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - shutdown
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-krunner
+
+
+  plasma-kded6:
+    command: run.sh /usr/bin/kded6
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - shutdown
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-kded6
+    restart-delay: 1s
+
+  plasma-ksystemstats:
+    command: run.sh /usr/bin/ksystemstats
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - udisks2
+      - shell-session-locale-files
+      - desktop-launch
+      - shutdown
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-ksystemstats1
+    restart-delay: 1s
+
+  plasma-xembedsniproxy:
+    command: run-after.sh org.kde.plasmashell /usr/bin/xembedsniproxy
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: simple
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-xembedsniproxy
+    restart-delay: 1s
+
+  plasma-gmenudbusmenuproxy:
+    command: run-after.sh org.kde.plasmashell /usr/bin/gmenudbusmenuproxy
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: simple
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-gmenudbusmenuproxy
+    restart-delay: 1s
+
+  plasma-powerdevil:
+    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - shell-session-locale-files
+      - desktop-launch
+      - shutdown
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-solid-powermanagement
+    restart-delay: 1s
+
+  kaccess:
+    command: run.sh /usr/bin/kaccess
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    autostart: kaccess.desktop
+
+  xwaylandvideobridge:
+    command: run.sh /usr/bin/xwaylandvideobridge
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - account-control
+      - locale-control
+      - time-control
+      - timeserver-control
+      - timezone-control
+      - network-manager
+      - shell-session-locale-files
+      - desktop-launch
+      - systemd-user-control
+      - snapd-control
+      - mpris
+    autostart: org.kde.xwaylandvideobridge.desktop
 
   pipewire:
     command: run.sh /usr/bin/pipewire
@@ -101,6 +504,7 @@ plugs:
   login-session-observe: null
   login-session-control: null
   mount-observe: null
+  mpris: null
   network-bind: null
   network-control: null
   network-observe: null
@@ -116,6 +520,7 @@ plugs:
     write:
       - $HOME/.pam_environment
       - $HOME/.xinputrc
+      - $HOME/.gtkrc-2.0
   shell-config-files:
     interface: system-files
     read:
@@ -128,21 +533,36 @@ plugs:
       - /etc/xdg/autostart
       - /etc/xdg/menus
       - /etc/xdg/plasma-workspace
+      - /etc/xdg
       - /run/udev/tags/seat
       - /etc/default/im-config
+      - /etc/writable/default/im-config
       - /etc/X11/xinit/xinputrc
       - /etc/default/locale
+  udisks2: null
   upower-observe: null
+  dbus-powerprofiles:
+    interface: dbus
+    name: net.hadess.PowerProfiles
+    bus: system
 
 slots:
   audio-playback: null
   audio-record: null
   pulseaudio: null
   desktop: null
+  dbus-kde-drkonqi:
+    interface: dbus
+    bus: session
+    name: org.kde.drkonqi
   dbus-kde-startup:
     interface: dbus
     bus: session
     name: org.kde.Startup
+  dbus-kde-shutdown:
+    interface: dbus
+    bus: session
+    name: org.kde.Shutdown
   dbus-kde-ksplash:
     interface: dbus
     bus: session
@@ -159,6 +579,10 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.ksmserver
+  dbus-kde-logoutprompt:
+    interface: dbus
+    bus: session
+    name: org.kde.LogoutPrompt
   dbus-kde-kded6:
     interface: dbus
     bus: session
@@ -203,6 +627,10 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.Solid
+  dbus-kde-solid-powermanagement:
+    interface: dbus
+    bus: session
+    name: org.kde.Solid.PowerManagement
   dbus-kde-powerdevil:
     interface: dbus
     bus: session
@@ -215,10 +643,18 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.krunner
+  dbus-kde-runner-activities:
+    interface: dbus
+    bus: session
+    name: org.kde.runners.activities
   dbus-kde-plasmashell:
     interface: dbus
     bus: session
     name: org.kde.plasmashell
+  dbus-kde-plasmashell-accentcolor:
+    interface: dbus
+    bus: session
+    name: org.kde.plasmashell.accentColor
   dbus-kde-plasmanetworkmanagement:
     interface: dbus
     bus: session
@@ -243,10 +679,70 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.plasma-welcome
+  dbus-kde-systemsettings:
+    interface: dbus
+    bus: session
+    name: org.kde.systemsettings
+  dbus-kde-plasma-emojier:
+    interface: dbus
+    bus: session
+    name: org.kde.plasma.emojier
+  dbus-kde-kmenuedit:
+    interface: dbus
+    bus: session
+    name: org.kde.kmenuedit
+  dbus-kde-dolphin:
+    interface: dbus
+    bus: session
+    name: org.kde.dolphin
+  dbus-kde-konsole:
+    interface: dbus
+    bus: session
+    name: org.kde.konsole
+  dbus-kde-kinfocenter:
+    interface: dbus
+    bus: session
+    name: org.kde.kinfocenter
+  dbus-kde-plasma-systemmonitor:
+    interface: dbus
+    bus: session
+    name: org.kde.plasma-systemmonitor
+  dbus-kde-ksystemstats1:
+    interface: dbus
+    bus: session
+    name: org.kde.ksystemstats1
+  dbus-kde-jobviewserver:
+    interface: dbus
+    bus: session
+    name: org.kde.JobViewServer
+  dbus-kde-kuiserver:
+    interface: dbus
+    bus: session
+    name: org.kde.kuiserver
+  dbus-kde-klipper:
+    interface: dbus
+    bus: session
+    name: org.kde.klipper
+  dbus-kde-xembedsniproxy:
+    interface: dbus
+    bus: session
+    name: org.kde.xembedsniproxy
+  dbus-kde-gmenudbusmenuproxy:
+    interface: dbus
+    bus: session
+    name: org.kde.gmenudbusmenuproxy
   dbus-freedesktop-impl-portal-kde:
     interface: dbus
     bus: session
     name: org.freedesktop.impl.portal.desktop.kde
+  dbus-freedesktop-policy-power:
+    interface: dbus
+    bus: system
+    name: org.freedesktop.Policy.Power
+  dbus-freedesktop-application:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.Application
   dbus-freedesktop-powermanagement:
     interface: dbus
     bus: session
@@ -255,14 +751,22 @@ slots:
     interface: dbus
     bus: session
     name: org.freedesktop.ScreenSaver
+  dbus-freedesktop-notifications:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.Notifications
   dbus-freedesktop-secrets:
     interface: dbus
     bus: session
     name: org.freedesktop.secrets
-  dbus-kde-statusnotifier:
+  dbus-kde-statusnotifierwatcher:
     interface: dbus
     bus: session
     name: org.kde.StatusNotifierWatcher
+  dbus-kde-statusnotifierhost:
+    interface: dbus
+    bus: session
+    name: org.kde.StatusNotifierHost
   dbus-pulseaudio-server:
     interface: dbus
     bus: session
@@ -274,6 +778,10 @@ slots:
   dbus-wireplumber:
     interface: dbus
     name: org.freedesktop.ReserveDevice1
+    bus: session
+  dbus-unity:
+    interface: dbus
+    name: com.canonical.Unity
     bus: session
 
 parts:
