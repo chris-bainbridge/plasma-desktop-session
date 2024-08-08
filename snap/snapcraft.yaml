@@ -38,7 +38,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
       - dbus-powerprofiles
 
@@ -85,7 +84,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: oneshot
     passthrough:
@@ -111,7 +109,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
       - shutdown
     daemon: dbus
@@ -139,7 +136,6 @@ apps:
       - desktop-launch
       - systemd-user-control
       - shutdown
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -165,7 +161,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: forking
     passthrough:
@@ -191,7 +186,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     after:
       - plasma-kwin-wayland
@@ -221,7 +215,6 @@ apps:
       - desktop-launch
       - systemd-user-control
       - shutdown
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -248,7 +241,6 @@ apps:
       - desktop-launch
       - shutdown
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -275,7 +267,6 @@ apps:
       - desktop-launch
       - shutdown
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -302,7 +293,6 @@ apps:
       - desktop-launch
       - shutdown
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -329,7 +319,6 @@ apps:
       - desktop-launch
       - shutdown
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -354,7 +343,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: simple
     passthrough:
@@ -379,7 +367,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: simple
     passthrough:
@@ -405,7 +392,6 @@ apps:
       - desktop-launch
       - shutdown
       - systemd-user-control
-      - snapd-control
       - mpris
     daemon: dbus
     passthrough:
@@ -430,7 +416,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     autostart: kaccess.desktop
 
@@ -450,7 +435,6 @@ apps:
       - shell-session-locale-files
       - desktop-launch
       - systemd-user-control
-      - snapd-control
       - mpris
     autostart: org.kde.xwaylandvideobridge.desktop
 
