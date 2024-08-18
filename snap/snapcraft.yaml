@@ -28,18 +28,8 @@ apps:
       - x11
       - desktop
     plugs:
-      - account-control
       - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
       - systemd-user-control
-      - mpris
-      - dbus-powerprofiles
 
   xdg-desktop-portal-kde:
     command: run-portal.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
@@ -73,18 +63,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - mpris
     daemon: oneshot
     passthrough:
       daemon-scope: user
@@ -98,19 +76,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - mpris
-      - shutdown
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -124,19 +89,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - shutdown
-      - mpris
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -151,17 +103,7 @@ apps:
       - x11
       - desktop
     plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
       - systemd-user-control
-      - mpris
     daemon: forking
     passthrough:
       daemon-scope: user
@@ -176,17 +118,7 @@ apps:
       - x11
       - desktop
     plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
       - systemd-user-control
-      - mpris
     after:
       - plasma-kwin-wayland
       - plasma-kcminit
@@ -204,18 +136,7 @@ apps:
       - x11
       - desktop
     plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
       - systemd-user-control
-      - shutdown
-      - mpris
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -230,17 +151,6 @@ apps:
       - x11
       - desktop
     plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - shutdown
-      - systemd-user-control
       - mpris
     daemon: dbus
     passthrough:
@@ -256,17 +166,6 @@ apps:
       - x11
       - desktop
     plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - shutdown
-      - systemd-user-control
       - mpris
     daemon: dbus
     passthrough:
@@ -274,26 +173,12 @@ apps:
       activates-on:
         - dbus-kde-krunner
 
-
   plasma-kded6:
     command: run.sh /usr/bin/kded6
     slots:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - shutdown
-      - systemd-user-control
-      - mpris
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -307,19 +192,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - udisks2
-      - shell-session-locale-files
-      - desktop-launch
-      - shutdown
-      - systemd-user-control
-      - mpris
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -333,17 +205,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - mpris
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -357,17 +218,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - mpris
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -381,18 +231,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - shell-session-locale-files
-      - desktop-launch
-      - shutdown
-      - systemd-user-control
-      - mpris
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -406,17 +244,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - mpris
     autostart: kaccess.desktop
 
   xwaylandvideobridge:
@@ -425,17 +252,6 @@ apps:
       - wayland
       - x11
       - desktop
-    plugs:
-      - account-control
-      - locale-control
-      - time-control
-      - timeserver-control
-      - timezone-control
-      - network-manager
-      - shell-session-locale-files
-      - desktop-launch
-      - systemd-user-control
-      - mpris
     autostart: org.kde.xwaylandvideobridge.desktop
 
   pipewire:
@@ -446,6 +262,9 @@ apps:
         listen-stream: $XDG_RUNTIME_DIR/pipewire-0
     passthrough:
       daemon-scope: user
+    slots:
+      - audio-playback
+      - audio-record
     plugs:
       - alsa
     before:
@@ -459,6 +278,10 @@ apps:
         listen-stream: $XDG_RUNTIME_DIR/pulse/native
     passthrough:
       daemon-scope: user
+    slots:
+      - audio-playback
+      - audio-record
+      - pulseaudio
     plugs:
       - alsa
 
@@ -488,7 +311,6 @@ plugs:
   login-session-observe: null
   login-session-control: null
   mount-observe: null
-  mpris: null
   network-bind: null
   network-control: null
   network-observe: null
@@ -525,16 +347,8 @@ plugs:
       - /etc/default/locale
   udisks2: null
   upower-observe: null
-  dbus-powerprofiles:
-    interface: dbus
-    name: net.hadess.PowerProfiles
-    bus: system
 
 slots:
-  audio-playback: null
-  audio-record: null
-  pulseaudio: null
-  desktop: null
   dbus-kde-drkonqi:
     interface: dbus
     bus: session
