@@ -12,6 +12,7 @@ mkdir -p /tmp/.X11-unix /tmp/.ICE-unix
 chmod 01777 /tmp/.X11-unix /tmp/.ICE-unix
 
 # Create the runtime directory
+export XDG_RUNTIME_DIR=/run/user/`id -u`
 mkdir -p --mode=700 $XDG_RUNTIME_DIR
 chmod 700 $XDG_RUNTIME_DIR
 
