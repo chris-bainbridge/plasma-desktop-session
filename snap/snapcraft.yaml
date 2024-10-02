@@ -135,6 +135,7 @@ apps:
       - wayland
       - x11
       - desktop
+      - screen-inhibit-control
     plugs:
       - systemd-user-control
     daemon: dbus
@@ -231,6 +232,7 @@ apps:
       - wayland
       - x11
       - desktop
+      - screen-inhibit-control
     daemon: dbus
     passthrough:
       daemon-scope: user
