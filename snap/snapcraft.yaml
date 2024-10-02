@@ -240,6 +240,21 @@ apps:
         - dbus-kde-solid-powermanagement
     restart-delay: 1s
 
+  plasma-polkit-agent:
+    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1
+    slots:
+      - wayland
+      - x11
+      - desktop
+    plugs:
+      - polkit-agent
+    daemon: dbus
+    passthrough:
+      daemon-scope: user
+      activates-on:
+        - dbus-kde-polkit-agent
+    restart-delay: 1s
+
   kaccess:
     command: run.sh /usr/bin/kaccess
     slots:
@@ -318,7 +333,6 @@ plugs:
   network-observe: null
   network-manager: null
   opengl: null
-  polkit-agent: null
   process-control: null
   shutdown: null
   ssh-keys: null
