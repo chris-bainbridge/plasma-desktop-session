@@ -4,7 +4,7 @@
 include:
   - project: sysadmin/ci-utilities
     file:
-      - /gitlab-templates/snap-snapcraft-lxd.yml
+      - /gitlab-templates/snap-snapcraft-core-lxd.yml
 
 variables:
   SNAP_BUILD_TYPE: "legacy"
