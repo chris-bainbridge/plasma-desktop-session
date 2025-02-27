@@ -1,17 +1,12 @@
 name: plasma-desktop-session
 adopt-info: plasma-desktop-session
-build-base: core20
-passthrough:
-  base: plasma-core22-desktop
+base: core24
 summary: Plasma Desktop Session for KDE Neon Core
 description: |
   Strictly confined Plasma and Ubuntu desktop sessions for KDE Neon Core.
 
 grade: stable
 confinement: strict
-architectures:
-  - build-on: amd64
-    run-on: all
 
 environment:
   HOME: $SNAP_REAL_HOME
@@ -19,6 +14,55 @@ environment:
   XDG_CONFIG_HOME: $SNAP_USER_COMMON/.config
   XDG_DATA_HOME: $SNAP_USER_COMMON/.local/share
   XDG_STATE_HOME: $SNAP_USER_COMMON/.local/state
+  XDG_CONFIG_DIRS: :$SNAP/kf6/etc/xdg:$SNAP/plasma/etc/xdg:/etc/xdg
+  XDG_DATA_DIRS: :$SNAP/kf6/usr/share:$SNAP/plasma/usr/share:/etc/xdg:/var/lib/snapd/desktop
+  XDG_DESKTOP_PORTAL_DIR: /snap/plasma-core24-desktop/current/usr/share/xdg-desktop-portal
+  PATH: $SNAP/kf6/usr/bin:$SNAP/kf6/usr/bin/qt6:$SNAP/plasma/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+  LD_LIBRARY_PATH: $SNAP_LIBRARY_PATH:$SNAP/kf6/usr/lib:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/plasma/usr/lib:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sasl2
+  QT_PLUGIN_PATH: $SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins
+  QML2_IMPORT_PATH: $SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qml:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qml
+
+layout:
+  /etc/alsa:
+    bind: $SNAP/plasma/etc/alsa
+  /etc/pulse:
+    bind: $SNAP/plasma/etc/pulse
+  /usr/share/alsa:
+    symlink: $SNAP/plasma/usr/share/alsa
+  /usr/share/alsa-card-profile:
+    symlink: $SNAP/plasma/usr/share/alsa-card-profile
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri
+  /usr/share/libinput:
+    symlink: $SNAP/plasma/usr/share/libinput
+  /usr/share/X11/xkb:
+    symlink: $SNAP/kf6/usr/share/X11/xkb
+  /usr/share/X11/locale:
+    symlink: $SNAP/plasma/usr/share/X11/locale
+  /usr/share/X11/xorg.conf.d:
+    symlink: $SNAP/plasma/usr/share/X11/xorg.conf.d
+  /usr/share/X11/XErrorDB:
+    symlink: $SNAP/plasma/usr/share/X11/XErrorDB
+  /usr/share/pipewire:
+    symlink: $SNAP/plasma/usr/share/pipewire
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/spa-0.2:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/spa-0.2
+  /usr/share/wireplumber:
+    symlink: $SNAP/plasma/usr/share/wireplumber
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/wireplumber-0.4:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/wireplumber-0.4
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau
+  /usr/share/drirc.d:
+    symlink: $SNAP/plasma/usr/share/drirc.d
+  /usr/share/glvnd:
+    symlink: $SNAP/plasma/usr/share/glvnd
+  /etc/vulkan:
+    bind: $SNAP/plasma/etc/vulkan
+  /usr/bin/xkbcomp:
+    symlink: $SNAP/plasma/usr/bin/xkbcomp
 
 apps:
   plasma-desktop-session:
@@ -32,7 +76,7 @@ apps:
       - systemd-user-control
 
   xdg-desktop-portal-kde:
-    command: run-portal.sh /usr/lib/x86_64-linux-gnu/libexec/xdg-desktop-portal-kde
+    command: run-portal.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/xdg-desktop-portal-kde
     slots:
       - wayland
       - x11
@@ -45,7 +89,7 @@ apps:
     restart-delay: 1s
 
   plasma-kactivitymanagerd:
-    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/kactivitymanagerd
+    command: run.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/kactivitymanagerd
     slots:
       - wayland
       - x11
@@ -58,7 +102,7 @@ apps:
     restart-delay: 1s
 
   plasma-ksplash:
-    command: run-after.sh org.kde.KWinWrapper /usr/bin/ksplashqml
+    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/ksplashqml
     slots:
       - wayland
       - x11
@@ -71,7 +115,7 @@ apps:
     restart-condition: never
 
   plasma-logoutprompt:
-    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/ksmserver-logout-greeter
+    command: run.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/ksmserver-logout-greeter
     slots:
       - wayland
       - x11
@@ -84,7 +128,7 @@ apps:
     restart-condition: never
 
   plasma-shutdown:
-    command: run.sh /usr/bin/plasma-shutdown
+    command: run.sh $SNAP/plasma/usr/bin/plasma-shutdown
     slots:
       - wayland
       - x11
@@ -97,7 +141,7 @@ apps:
     restart-condition: never
 
   plasma-kcminit:
-    command: run-after.sh org.kde.KWinWrapper /usr/bin/kcminit_startup
+    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/kcminit_startup
     slots:
       - wayland
       - x11
@@ -112,7 +156,7 @@ apps:
     restart-condition: never
 
   plasma-ksmserver:
-    command: run-after.sh org.kde.kcminit /usr/bin/ksmserver
+    command: run-after.sh org.kde.kcminit $SNAP/plasma/usr/bin/ksmserver
     slots:
       - wayland
       - x11
@@ -130,7 +174,7 @@ apps:
     restart-delay: 1s
 
   plasma-kwin-wayland:
-    command: run-portal.sh /usr/bin/kwin_wayland_wrapper --xwayland
+    command: run-portal.sh $SNAP/plasma/usr/bin/kwin_wayland_wrapper --xwayland
     slots:
       - wayland
       - x11
@@ -146,7 +190,7 @@ apps:
     restart-delay: 1s
 
   plasma-plasmashell:
-    command: run.sh /usr/bin/plasmashell --no-respawn
+    command: run.sh $SNAP/plasma/usr/bin/plasmashell --no-respawn
     slots:
       - wayland
       - x11
@@ -161,7 +205,7 @@ apps:
     restart-delay: 1s
 
   plasma-krunner:
-    command: run.sh /usr/bin/krunner --daemon
+    command: run.sh $SNAP/plasma/usr/bin/krunner --daemon
     slots:
       - wayland
       - x11
@@ -175,7 +219,7 @@ apps:
         - dbus-kde-krunner
 
   plasma-kded6:
-    command: run.sh /usr/bin/kded6
+    command: run.sh $SNAP/kf6/usr/bin/kded6
     slots:
       - wayland
       - x11
@@ -188,7 +232,7 @@ apps:
     restart-delay: 1s
 
   plasma-ksystemstats:
-    command: run.sh /usr/bin/ksystemstats
+    command: run.sh $SNAP/plasma/usr/bin/ksystemstats
     slots:
       - wayland
       - x11
@@ -201,7 +245,7 @@ apps:
     restart-delay: 1s
 
   plasma-xembedsniproxy:
-    command: run-after.sh org.kde.plasmashell /usr/bin/xembedsniproxy
+    command: run-after.sh org.kde.plasmashell $SNAP/plasma/usr/bin/xembedsniproxy
     slots:
       - wayland
       - x11
@@ -214,7 +258,7 @@ apps:
     restart-delay: 1s
 
   plasma-gmenudbusmenuproxy:
-    command: run-after.sh org.kde.plasmashell /usr/bin/gmenudbusmenuproxy
+    command: run-after.sh org.kde.plasmashell $SNAP/plasma/usr/bin/gmenudbusmenuproxy
     slots:
       - wayland
       - x11
@@ -227,7 +271,7 @@ apps:
     restart-delay: 1s
 
   plasma-powerdevil:
-    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil
+    command: run.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/org_kde_powerdevil
     slots:
       - wayland
       - x11
@@ -241,22 +285,20 @@ apps:
     restart-delay: 1s
 
   plasma-polkit-agent:
-    command: run.sh /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1
+    command: run-after.sh org.kde.ksmserver $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/polkit-kde-authentication-agent-1
     slots:
       - wayland
       - x11
       - desktop
     plugs:
       - polkit-agent
-    daemon: dbus
+    daemon: simple
     passthrough:
       daemon-scope: user
-      activates-on:
-        - dbus-kde-polkit-agent
     restart-delay: 1s
 
   kaccess:
-    command: run.sh /usr/bin/kaccess
+    command: run.sh $SNAP/plasma/usr/bin/kaccess
     slots:
       - wayland
       - x11
@@ -264,7 +306,7 @@ apps:
     autostart: kaccess.desktop
 
   xwaylandvideobridge:
-    command: run.sh /usr/bin/xwaylandvideobridge
+    command: run.sh $SNAP/plasma/usr/bin/xwaylandvideobridge
     slots:
       - wayland
       - x11
@@ -272,11 +314,15 @@ apps:
     autostart: org.kde.xwaylandvideobridge.desktop
 
   pipewire:
-    command: run.sh /usr/bin/pipewire
+    command: run.sh $SNAP/plasma/usr/bin/pipewire
     daemon: simple
     sockets:
       pipewire:
         listen-stream: $XDG_RUNTIME_DIR/pipewire-0
+        socket-mode: 0644
+      pipewire-manager:
+        listen-stream: $XDG_RUNTIME_DIR/pipewire-0-manager
+        socket-mode: 0644
     passthrough:
       daemon-scope: user
     slots:
@@ -288,7 +334,7 @@ apps:
       - wireplumber
 
   pipewire-pulse:
-    command: run.sh /usr/bin/pipewire-pulse
+    command: run.sh $SNAP/plasma/usr/bin/pipewire-pulse
     daemon: simple
     sockets:
       pulse:
@@ -303,7 +349,7 @@ apps:
       - alsa
 
   wireplumber:
-    command: run.sh /usr/bin/wireplumber
+    command: run.sh $SNAP/plasma/usr/bin/wireplumber
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -313,6 +359,14 @@ apps:
       - alsa
 
 plugs:
+  kf6-core24:
+    content: kf6-core24
+    interface: content
+    target: $SNAP/kf6
+  plasma-core24:
+    content: plasma-core24
+    interface: content
+    target: $SNAP/plasma
   avahi-control: null
   bluez: null
   bluetooth-control: null
@@ -363,6 +417,7 @@ plugs:
       - /etc/default/locale
       - /etc/shadow
       - /etc/pam.d
+      - /etc/security
       - /etc/login.defs
       - /var/lib/extrausers
   udisks2: null
@@ -421,6 +476,10 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.screensaver
+  dbus-kde-screenbrightness:
+    interface: dbus
+    bus: session
+    name: org.kde.ScreenBrightness
   dbus-kde-keyboard:
     interface: dbus
     bus: session

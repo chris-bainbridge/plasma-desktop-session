@@ -15,6 +15,7 @@ chmod 01777 /tmp/.X11-unix /tmp/.ICE-unix
 export XDG_RUNTIME_DIR=/run/user/`id -u`
 mkdir -p --mode=700 $XDG_RUNTIME_DIR
 chmod 700 $XDG_RUNTIME_DIR
+chmod 700 $XDG_RUNTIME_DIR/snap.$SNAP_NAME
 
 export PULSE_SERVER=unix:/run/user/`id -u`/pulse/native
 export XDG_CURRENT_DESKTOP=KDE
@@ -24,4 +25,4 @@ if ! grep "^snap$" $HOME/.hidden 2>&1 > /dev/null; then
   echo "snap" >> $HOME/.hidden
 fi
 
-exec /usr/bin/startplasma-wayland
+exec $SNAP/plasma/usr/bin/startplasma-wayland
