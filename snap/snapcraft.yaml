@@ -49,10 +49,6 @@ layout:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/spa-0.2:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/spa-0.2
-  /usr/share/wireplumber:
-    symlink: $SNAP/plasma/usr/share/wireplumber
-  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/wireplumber-0.4:
-    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/wireplumber-0.4
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau
   /usr/share/drirc.d:
@@ -313,50 +309,6 @@ apps:
       - desktop
     autostart: org.kde.xwaylandvideobridge.desktop
 
-  pipewire:
-    command: run.sh $SNAP/plasma/usr/bin/pipewire
-    daemon: simple
-    sockets:
-      pipewire:
-        listen-stream: $XDG_RUNTIME_DIR/pipewire-0
-        socket-mode: 0644
-      pipewire-manager:
-        listen-stream: $XDG_RUNTIME_DIR/pipewire-0-manager
-        socket-mode: 0644
-    passthrough:
-      daemon-scope: user
-    slots:
-      - audio-playback
-      - audio-record
-    plugs:
-      - alsa
-    before:
-      - wireplumber
-
-  pipewire-pulse:
-    command: run.sh $SNAP/plasma/usr/bin/pipewire-pulse
-    daemon: simple
-    sockets:
-      pulse:
-        listen-stream: $XDG_RUNTIME_DIR/pulse/native
-    passthrough:
-      daemon-scope: user
-    slots:
-      - audio-playback
-      - audio-record
-      - pulseaudio
-    plugs:
-      - alsa
-
-  wireplumber:
-    command: run.sh $SNAP/plasma/usr/bin/wireplumber
-    daemon: simple
-    passthrough:
-      daemon-scope: user
-    after:
-      - pipewire
-    plugs:
-      - alsa
 
 plugs:
   kf6-core24:
@@ -367,6 +319,9 @@ plugs:
     content: plasma-core24
     interface: content
     target: $SNAP/plasma
+
+  audio-playback: null
+  audio-record: null
   avahi-control: null
   bluez: null
   bluetooth-control: null
@@ -387,6 +342,8 @@ plugs:
   network-observe: null
   network-manager: null
   opengl: null
+  pulseaudio: null
+  pipewire: null
   process-control: null
   shutdown: null
   ssh-keys: null
@@ -644,17 +601,9 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.StatusNotifierHost
-  dbus-pulseaudio-server:
-    interface: dbus
-    bus: session
-    name: org.pulseaudio.Server
   dbus-portal:
     interface: dbus
     name: org.freedesktop.impl.portal.PermissionStore
-    bus: session
-  dbus-wireplumber:
-    interface: dbus
-    name: org.freedesktop.ReserveDevice1
     bus: session
   dbus-unity:
     interface: dbus
