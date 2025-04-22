@@ -20,7 +20,6 @@ export XDG_RUNTIME_DIR=/run/user/`id -u`
 chmod 700 $XDG_RUNTIME_DIR/snap.$SNAP_NAME
 
 export PULSE_SERVER=unix:/run/user/`id -u`/pulse/native
-export PIPEWIRE_RUNTIME_DIR=$XDG_RUNTIME_DIR
 export XDG_CURRENT_DESKTOP=KDE
 export _KDE_APPLICATIONS_AS_FORKING=1
 
