@@ -33,6 +33,8 @@ layout:
     symlink: $SNAP/plasma/usr/share/alsa-card-profile
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gbm:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gbm
   /usr/share/libinput:
     symlink: $SNAP/plasma/usr/share/libinput
   /usr/share/X11/xkb:
@@ -72,11 +74,15 @@ apps:
       - systemd-user-control
 
   xdg-desktop-portal-kde:
-    command: run-portal.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/xdg-desktop-portal-kde
+    command: run-after-portal.sh org.kde.KWinWrapper $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/xdg-desktop-portal-kde
     slots:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -85,11 +91,15 @@ apps:
     restart-delay: 1s
 
   plasma-kactivitymanagerd:
-    command: run.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/kactivitymanagerd
+    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/kactivitymanagerd
     slots:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -103,6 +113,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     daemon: oneshot
     passthrough:
       daemon-scope: user
@@ -116,6 +128,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -129,6 +143,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -144,6 +160,9 @@ apps:
       - desktop
     plugs:
       - systemd-user-control
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: forking
     passthrough:
       daemon-scope: user
@@ -159,6 +178,7 @@ apps:
       - desktop
     plugs:
       - systemd-user-control
+      - wayland-client
     after:
       - plasma-kwin-wayland
       - plasma-kcminit
@@ -178,6 +198,7 @@ apps:
       - screen-inhibit-control
     plugs:
       - systemd-user-control
+      - wayland-client
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -186,13 +207,16 @@ apps:
     restart-delay: 1s
 
   plasma-plasmashell:
-    command: run.sh $SNAP/plasma/usr/bin/plasmashell --no-respawn
+    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/plasmashell --no-respawn
     slots:
       - wayland
       - x11
       - desktop
     plugs:
       - mpris
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -201,13 +225,16 @@ apps:
     restart-delay: 1s
 
   plasma-krunner:
-    command: run.sh $SNAP/plasma/usr/bin/krunner --daemon
+    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/krunner --daemon
     slots:
       - wayland
       - x11
       - desktop
     plugs:
       - mpris
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -215,11 +242,15 @@ apps:
         - dbus-kde-krunner
 
   plasma-kded6:
-    command: run.sh $SNAP/kf6/usr/bin/kded6
+    command: run-after.sh org.kde.KWinWrapper $SNAP/kf6/usr/bin/kded6
     slots:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -246,6 +277,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -259,6 +292,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -267,12 +302,16 @@ apps:
     restart-delay: 1s
 
   plasma-powerdevil:
-    command: run.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/org_kde_powerdevil
+    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/org_kde_powerdevil
     slots:
       - wayland
       - x11
       - desktop
       - screen-inhibit-control
+    plugs:
+      - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -288,6 +327,7 @@ apps:
       - desktop
     plugs:
       - polkit-agent
+      - wayland-client
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -299,6 +339,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     autostart: kaccess.desktop
 
   xwaylandvideobridge:
@@ -307,6 +349,8 @@ apps:
       - wayland
       - x11
       - desktop
+    plugs:
+      - wayland-client
     autostart: org.kde.xwaylandvideobridge.desktop
 
 
@@ -319,6 +363,8 @@ plugs:
     content: plasma-core24
     interface: content
     target: $SNAP/plasma
+  wayland-client:
+    interface: wayland
 
   audio-playback: null
   audio-record: null
