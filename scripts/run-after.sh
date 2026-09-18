@@ -1,8 +1,12 @@
 #!/bin/sh
+set -e
+
 export PULSE_SERVER=unix:/run/user/`id -u`/pulse/native
 export PIPEWIRE_RUNTIME_DIR=/run/user/`id -u`
 
 SERVICE=$1
 shift
-$SNAP/plasma/usr/bin/plasma_waitforname --timeout 20 $SERVICE
+
+WAITFORNAME_TIMEOUT=${PLASMA_WAITFORNAME_TIMEOUT:-60}
+$SNAP/plasma/usr/bin/plasma_waitforname --timeout "$WAITFORNAME_TIMEOUT" "$SERVICE"
 exec "$@"

@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+
 export PULSE_SERVER=unix:/run/user/`id -u`/pulse/native
 export PIPEWIRE_RUNTIME_DIR=/run/user/`id -u`
 
@@ -6,7 +8,8 @@ SESSION_SNAP=$SNAP
 SERVICE=$1
 shift
 
-$SESSION_SNAP/plasma/usr/bin/plasma_waitforname --timeout 20 "$SERVICE"
+WAITFORNAME_TIMEOUT=${PLASMA_WAITFORNAME_TIMEOUT:-60}
+$SESSION_SNAP/plasma/usr/bin/plasma_waitforname --timeout "$WAITFORNAME_TIMEOUT" "$SERVICE"
 
 # This is necessary to avoid xdg-desktop-portal-kde have Qt try
 # to load the xdg-desktop-portal platform theme plugin
