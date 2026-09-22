@@ -170,6 +170,22 @@ apps:
 
   plasma-kwin-wayland:
     command: run-portal.sh $SNAP/plasma/usr/bin/kwin_wayland_wrapper --xwayland
+    # kwin filters "restricted" Wayland globals (PlasmaWindowManagement,
+    # PlasmaWindowActivationFeedback, fake input, screencast, etc.) per
+    # client via FilteredDisplay::allowInterface(). To authorise a client
+    # kwin looks up its .desktop file's X-KDE-Wayland-Interfaces field by
+    # matching service->exec() to the client's executable path via
+    # KApplicationTrader. Inside the snap that match can never succeed:
+    # the desktop file's Exec=$SNAP/plasma/usr/bin/... contains the literal
+    # (unexpanded) $SNAP, so QFileInfo(...).canonicalFilePath() never equals
+    # the real /snap/plasma-desktop-session/<rev>/plasma/usr/bin/... path.
+    # kwin therefore denies the global and plasmashell logs:
+    #   "The PlasmaWindowManagement protocol hasn't activated in time"
+    # and the desktop containment never renders. AppArmor profiles already
+    # provide the confinement boundary here, so disable kwin's own
+    # desktop-file-based interface permission checks.
+    environment:
+      KWIN_WAYLAND_NO_PERMISSION_CHECKS: "1"
     slots:
       - wayland
       - x11-server
@@ -178,6 +194,9 @@ apps:
     plugs:
       - systemd-user-control
       - wayland-client
+      - login-session-observe
+      - shutdown
+      - system-observe
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -186,7 +205,21 @@ apps:
     restart-delay: 1s
 
   plasma-plasmashell:
-    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/plasmashell --no-respawn
+    # Wait for the compositor itself (org.kde.KWin, claimed by
+    # kwin_wayland once the Wayland server and its globals, including the
+    # PlasmaWindowManagement protocol, are initialized) rather than the
+    # wrapper (org.kde.KWinWrapper, claimed by kwin_wayland_wrapper before
+    # kwin_wayland even starts). Waiting on the wrapper let plasmashell
+    # connect to the compositor before the PlasmaWindowManagement protocol
+    # was registered, producing "The PlasmaWindowManagement protocol
+    # hasn't activated in time" and a broken window-management API.
+    # org.kde.KWin is claimed during workspace creation, a few steps
+    # before the compositor starts processing Wayland client connections,
+    # so also wait PLASMA_WAITFORNAME_EXTRA_DELAY seconds (see
+    # run-after.sh) for the compositor's Wayland event loop to come up.
+    command: run-after.sh org.kde.KWin $SNAP/plasma/usr/bin/plasmashell --no-respawn
+    environment:
+      PLASMA_WAITFORNAME_EXTRA_DELAY: "2"
     slots:
       - wayland
       - x11-server
@@ -194,6 +227,9 @@ apps:
     plugs:
       - mpris
       - wayland-client
+      - login-session-observe
+      - shutdown
+      - system-observe
     after:
       - plasma-kwin-wayland
     daemon: dbus
@@ -228,6 +264,8 @@ apps:
       - desktop
     plugs:
       - wayland-client
+      - shutdown
+      - system-observe
     after:
       - plasma-kwin-wayland
     daemon: dbus
@@ -291,6 +329,10 @@ apps:
       - screen-inhibit-control
     plugs:
       - wayland-client
+      - login-session-observe
+      - shutdown
+      - system-observe
+      - upower-observe
     after:
       - plasma-kwin-wayland
     daemon: dbus
@@ -301,7 +343,17 @@ apps:
     restart-delay: 1s
 
   plasma-polkit-agent:
-    command: run-after.sh org.kde.ksmserver $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/polkit-kde-authentication-agent-1
+    # Ordering matters: this daemon:simple agent has no D-Bus name to wait
+    # on (run-after.sh waits for org.kde.ksmserver, which is claimed before
+    # kwin's wrapper exports WAYLAND_DISPLAY/XAUTHORITY). If it starts before
+    # kwin_wayland, Qt finds no WAYLAND_DISPLAY, falls back to the xcb platform
+    # plugin via DISPLAY=:0, fails xcb auth, and the agent crashes/restart-loops:
+    #   "Could not load the Qt platform plugin \"xcb\" ... no Qt platform plugin
+    #   could be initialized". Ordering it after kwin (like plasmashell) ensures
+    # the Wayland socket and Xauthority file are exported before it starts.
+    command: run-after.sh org.kde.KWin $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/polkit-kde-authentication-agent-1
+    environment:
+      PLASMA_WAITFORNAME_EXTRA_DELAY: "2"
     slots:
       - wayland
       - x11-server
@@ -309,6 +361,8 @@ apps:
     plugs:
       - polkit-agent
       - wayland-client
+    after:
+      - plasma-kwin-wayland
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -501,6 +555,18 @@ slots:
     interface: dbus
     bus: session
     name: local.org_kde_powerdevil
+  dbus-kde-powerdevil-daemon:
+    interface: dbus
+    bus: session
+    name: org.kde.org_kde_powerdevil
+  dbus-kde-touchpad:
+    interface: dbus
+    bus: session
+    name: org.kde.touchpad
+  dbus-freedesktop-a11y-manager:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.a11y.Manager
   dbus-kde-krunner:
     interface: dbus
     bus: session
