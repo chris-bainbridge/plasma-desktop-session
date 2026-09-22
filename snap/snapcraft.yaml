@@ -191,10 +191,21 @@ apps:
       - x11-server
       - desktop
       - screen-inhibit-control
+    # kwin_wayland is the Wayland compositor and, on a physical/KMS
+    # display, must acquire DRM master. Acquisition goes through
+    # systemd-logind's seat/session device handshake: kwin_wayland calls
+    # TakeDevice/TakeControl on the session's seat device to get the DRM
+    # fd as master (and ReleaseDevice/ReleaseControl to hand it back).
+    # Those org.freedesktop.login1.Session/Seat D-Bus methods are only
+    # granted by login-session-control (login-session-observe allows only
+    # read-only Properties). Without it AppArmor denies the calls and
+    # kwin's DRM atomic commit fails EPERM ("Permission denied"), leaving
+    # a black screen while systemd-logind retains DRM master.
     plugs:
       - systemd-user-control
       - wayland-client
       - login-session-observe
+      - login-session-control
       - shutdown
       - system-observe
     daemon: dbus
@@ -214,12 +225,16 @@ apps:
     # was registered, producing "The PlasmaWindowManagement protocol
     # hasn't activated in time" and a broken window-management API.
     # org.kde.KWin is claimed during workspace creation, a few steps
-    # before the compositor starts processing Wayland client connections,
-    # so also wait PLASMA_WAITFORNAME_EXTRA_DELAY seconds (see
-    # run-after.sh) for the compositor's Wayland event loop to come up.
+    # before the compositor starts processing Wayland client connections
+    # AND before it finishes DRM output enumeration. plasmashell's
+    # ScreenPool queries the screen list once at startup and never
+    # retries, so if it races ahead of kwin publishing its output the
+    # whole desktop stays permanently black (see run-after.sh) -- poll
+    # kwin's own readiness instead of guessing a fixed delay.
     command: run-after.sh org.kde.KWin $SNAP/plasma/usr/bin/plasmashell --no-respawn
     environment:
       PLASMA_WAITFORNAME_EXTRA_DELAY: "2"
+      PLASMA_WAIT_FOR_KWIN_OUTPUT: "1"
     slots:
       - wayland
       - x11-server

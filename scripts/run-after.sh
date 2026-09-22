@@ -21,6 +21,37 @@ if [ -n "${PLASMA_WAITFORNAME_EXTRA_DELAY:-}" ]; then
     sleep "$PLASMA_WAITFORNAME_EXTRA_DELAY"
 fi
 
+# org.kde.KWin being claimed also does NOT mean kwin has finished DRM output
+# enumeration: that happens asynchronously afterwards. plasmashell's
+# ScreenPool queries the (Wayland/Qt) screen list once at startup and never
+# retries -- if it connects before kwin has published any wl_output, its
+# screen count/geometry stay null/undefined FOREVER, so the whole desktop
+# (panel, icons, wallpaper -- everything) never gets a first frame and stays
+# black, even though kwin itself is compositing fine (confirmed live: a
+# fixed sleep is not a reliable readiness signal here, since kwin's DRM
+# init time varies with boot-time system load). Poll kwin's own
+# supportInformation for a real enabled output instead of guessing a fixed
+# delay; give up after a timeout and proceed anyway rather than hang the
+# session forever if kwin genuinely never gets an output.
+if [ -n "${PLASMA_WAIT_FOR_KWIN_OUTPUT:-}" ]; then
+    timeout_iters=$(( ${PLASMA_WAIT_FOR_KWIN_OUTPUT_TIMEOUT:-15} * 5 ))
+    i=0
+    ready=0
+    while [ "$i" -lt "$timeout_iters" ]; do
+        if dbus-send --session --print-reply --dest=org.kde.KWin /KWin \
+             org.kde.KWin.supportInformation 2>/dev/null \
+             | grep -qE 'Number of Screens: [1-9]'; then
+            ready=1
+            break
+        fi
+        i=$((i + 1))
+        sleep 0.2
+    done
+    if [ "$ready" -ne 1 ]; then
+        echo "run-after.sh: timed out waiting for kwin to report an enabled output; starting $* anyway" >&2
+    fi
+fi
+
 # kwin_wayland_wrapper creates the Wayland socket (named wayland-0 here, the
 # first free slot) and exports WAYLAND_DISPLAY/DISPLAY/XAUTHORITY through
 # KUpdateLaunchEnvironmentJob, which updates the *systemd user manager*
