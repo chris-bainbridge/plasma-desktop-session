@@ -169,7 +169,10 @@ apps:
     restart-delay: 1s
 
   plasma-kwin-wayland:
-    command: run-portal.sh $SNAP/plasma/usr/bin/kwin_wayland_wrapper --xwayland
+    # KWin creates the session Wayland compositor. Don't let it inherit
+    # client display variables from systemd --user, or it chooses a
+    # nested Wayland/X11 backend instead of the DRM backend.
+    command: run-kwin.sh $SNAP/plasma/usr/bin/kwin_wayland_wrapper --xwayland
     # kwin filters "restricted" Wayland globals (PlasmaWindowManagement,
     # PlasmaWindowActivationFeedback, fake input, screencast, etc.) per
     # client via FilteredDisplay::allowInterface(). To authorise a client
@@ -204,6 +207,7 @@ apps:
     plugs:
       - systemd-user-control
       - wayland-client
+      - opengl
       - login-session-observe
       - login-session-control
       - shutdown
@@ -312,6 +316,8 @@ apps:
     plugs:
       - wayland-client
       - x11
+    after:
+      - plasma-kwin-wayland
     daemon: simple
     passthrough:
       daemon-scope: user
@@ -328,6 +334,8 @@ apps:
     plugs:
       - wayland-client
       - x11
+    after:
+      - plasma-kwin-wayland
     daemon: simple
     passthrough:
       daemon-scope: user
