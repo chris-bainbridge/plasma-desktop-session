@@ -762,12 +762,6 @@ parts:
       - plasma-desktop-session
     stage-packages:
       - sddm
-      - sddm-theme-elarun
-      - qt6-qpa-plugins
-      - qt6-wayland
-      - qml6-module-qtquick-controls
-      - qml6-module-qtquick-layouts
-      - qml6-module-qtquick-virtualkeyboard
     override-prime: |
       rm -rf "$CRAFT_PRIME/sddm"
       craftctl default
@@ -777,5 +771,14 @@ parts:
           mv "$CRAFT_PRIME/$path" "$CRAFT_PRIME/sddm/$path"
         fi
       done
-      find "$CRAFT_PRIME/sddm/usr/share/sddm/themes" \
-        -mindepth 1 -maxdepth 1 ! -name elarun -exec rm -rf {} +
+      qt_lib_dir="$CRAFT_PRIME/sddm/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
+      find "$qt_lib_dir" -maxdepth 1 \( -type f -o -type l \) \
+        -name 'libQt6*.so*' -delete
+      rm -rf "$qt_lib_dir/qt6/plugins"
+      find "$qt_lib_dir/qt6/qml" -mindepth 1 -maxdepth 1 \
+        ! -name SddmComponents -exec rm -rf {} +
+      if find "$CRAFT_PRIME/sddm/usr/lib" \
+        \( -type f -o -type l \) -name 'libQt6*.so*' -print -quit | grep -q .; then
+        echo "The SDDM runtime must use Qt libraries from the KDE content snaps"
+        exit 1
+      fi
