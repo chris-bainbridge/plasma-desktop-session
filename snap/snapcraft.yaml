@@ -782,3 +782,24 @@ parts:
         echo "The SDDM runtime must use Qt libraries from the KDE content snaps"
         exit 1
       fi
+      for path in \
+        usr/bin/sddm \
+        usr/bin/sddm-greeter-qt6 \
+        usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sddm/sddm-helper \
+        usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sddm/sddm-helper-start-wayland \
+        usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sddm/sddm-helper-start-x11user
+      do
+        source="$CRAFT_STAGE/sddm-qt6/$path"
+        if [[ ! -x "$source" ]]; then
+          echo "Qt 6.11 SDDM build is missing $path"
+          exit 1
+        fi
+        install -D -m 0755 "$source" "$CRAFT_PRIME/sddm/$path"
+      done
+  sddm-qt6-runtime:
+    plugin: dump
+    source: .sddm-qt6-stage
+    after:
+      - sddm-runtime
+    prime:
+      - -sddm-qt6
