@@ -31,10 +31,18 @@ environment:
   # the trigger for the ksmserver SIGSEGV in libxkbcommon.
   XKB_CONFIG_ROOT: $SNAP/kf6/usr/share/X11/xkb
   XLOCALEDIR: $SNAP/kf6/usr/share/X11/locale
+  XCURSOR_THEME: breeze_cursors
+  XCURSOR_PATH: $SNAP/plasma/usr/share/icons:$SNAP/kf6/usr/share/icons
 
 layout:
   /usr/share/X11/xorg.conf.d:
     symlink: $SNAP/plasma/usr/share/X11/xorg.conf.d
+  /usr/share/libinput:
+    symlink: $SNAP/plasma/usr/share/libinput
+  /usr/share/pipewire:
+    symlink: $SNAP/plasma/usr/share/pipewire
+  /usr/bin/xkbcomp:
+    symlink: $SNAP/kf6/usr/bin/xkbcomp
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
@@ -102,6 +110,8 @@ apps:
 
   plasma-logoutprompt:
     command: run.sh $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/ksmserver-logout-greeter
+    environment:
+      QT_QPA_PLATFORM: wayland
     slots:
       - wayland
       - x11-server
@@ -117,11 +127,14 @@ apps:
 
   plasma-shutdown:
     command: run.sh $SNAP/plasma/usr/bin/plasma-shutdown
+    environment:
+      QT_QPA_PLATFORM: wayland
     slots:
       - wayland
       - x11-server
       - desktop
     plugs:
+      - systemd-user-control
       - wayland-client
     daemon: dbus
     passthrough:
@@ -132,6 +145,8 @@ apps:
 
   plasma-kcminit:
     command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/kcminit_startup
+    environment:
+      QT_QPA_PLATFORM: wayland
     slots:
       - wayland
       - x11-server
@@ -139,6 +154,7 @@ apps:
     plugs:
       - systemd-user-control
       - wayland-client
+      - x11
     after:
       - plasma-kwin-wayland
     daemon: forking
@@ -150,6 +166,8 @@ apps:
 
   plasma-ksmserver:
     command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/ksmserver
+    environment:
+      QT_QPA_PLATFORM: wayland
     slots:
       - wayland
       - x11-server
@@ -738,3 +756,26 @@ parts:
     override-build: |
       cd $CRAFT_PROJECT_DIR
       craftctl set version="$(date +%Y%m%d)+git$(git rev-parse --short HEAD)"
+  sddm-runtime:
+    plugin: nil
+    after:
+      - plasma-desktop-session
+    stage-packages:
+      - sddm
+      - sddm-theme-elarun
+      - qt6-qpa-plugins
+      - qt6-wayland
+      - qml6-module-qtquick-controls
+      - qml6-module-qtquick-layouts
+      - qml6-module-qtquick-virtualkeyboard
+    override-prime: |
+      rm -rf "$CRAFT_PRIME/sddm"
+      craftctl default
+      mkdir -p "$CRAFT_PRIME/sddm"
+      for path in etc usr var; do
+        if [ -e "$CRAFT_PRIME/$path" ]; then
+          mv "$CRAFT_PRIME/$path" "$CRAFT_PRIME/sddm/$path"
+        fi
+      done
+      find "$CRAFT_PRIME/sddm/usr/share/sddm/themes" \
+        -mindepth 1 -maxdepth 1 ! -name elarun -exec rm -rf {} +
