@@ -17,6 +17,7 @@ environment:
   XDG_CONFIG_DIRS: :$SNAP/kf6/etc/xdg:$SNAP/plasma/etc/xdg:/etc/xdg
   XDG_DATA_DIRS: :$SNAP/kf6/usr/share:$SNAP/plasma/usr/share:/etc/xdg:/var/lib/snapd/desktop
   XDG_DESKTOP_PORTAL_DIR: /snap/plasma-core26-desktop/current/usr/share/xdg-desktop-portal
+  FONTCONFIG_PATH: $SNAP/plasma/etc/fonts
   PATH: $SNAP/plasma/usr/bin:$SNAP/kf6/usr/bin:$SNAP/kf6/usr/bin/qt6:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
   LD_LIBRARY_PATH: $SNAP_LIBRARY_PATH:/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/usr/lib:/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/lib:$SNAP/plasma/usr/lib:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sasl2:$SNAP/kf6/usr/lib:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
   QT_PLUGIN_PATH: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins
