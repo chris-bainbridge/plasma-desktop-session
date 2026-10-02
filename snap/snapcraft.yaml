@@ -1,7 +1,6 @@
 name: plasma-desktop-session
 adopt-info: plasma-desktop-session
-base: core26-desktop
-build-base: core26
+base: core26
 summary: Plasma Desktop Session for KDE Neon Core
 description: |
   Strictly confined Plasma and Ubuntu desktop sessions for KDE Neon Core.
@@ -37,14 +36,22 @@ environment:
 layout:
   /usr/share/X11/xorg.conf.d:
     symlink: $SNAP/plasma/usr/share/X11/xorg.conf.d
+  /usr/share/X11/xkb:
+    symlink: $SNAP/kf6/usr/share/X11/xkb
   /usr/share/libinput:
     symlink: $SNAP/plasma/usr/share/libinput
   /usr/share/pipewire:
     symlink: $SNAP/plasma/usr/share/pipewire
+  /usr/share/glvnd/egl_vendor.d:
+    symlink: $SNAP/plasma/usr/share/glvnd/egl_vendor.d
   /usr/bin/xkbcomp:
     symlink: $SNAP/kf6/usr/bin/xkbcomp
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gbm:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gbm
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri:
+    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau
 
