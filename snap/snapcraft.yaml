@@ -8,6 +8,24 @@ description: |
 grade: stable
 confinement: strict
 
+# All KDE packages staged by the sddm-runtime part (sddm,
+# plasma-setup, plasma-keyboard, plasma-nm) must come from a single
+# consistent upstream release rather than a mix of Ubuntu's own
+# archive and Neon's -- priority: always pins apt to prefer Neon's
+# copies even when Ubuntu's archive also ships a same-named package
+# (e.g. sddm), so the whole KDE stack here is sourced from one place
+# (same suite kf6-core26/plasma-core-desktop already use for KF6/Qt).
+package-repositories:
+-   type: apt
+    components:
+    - main
+    suites:
+    - resolute
+    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
+    key-server: keyserver.ubuntu.com
+    url: http://origin.archive.neon.kde.org/unstable
+    priority: always
+
 environment:
   HOME: $SNAP_REAL_HOME
   XDG_CACHE_HOME: $SNAP_USER_COMMON/.cache
@@ -770,6 +788,9 @@ parts:
       - plasma-desktop-session
     stage-packages:
       - sddm
+      - plasma-setup
+      - plasma-keyboard
+      - plasma-nm
     override-prime: |
       rm -rf "$CRAFT_PRIME/sddm"
       craftctl default
@@ -779,19 +800,35 @@ parts:
           mv "$CRAFT_PRIME/$path" "$CRAFT_PRIME/sddm/$path"
         fi
       done
-      # Neon's apt sddm package pulls in its own libQt6*/plugins/qml via
-      # dependency resolution; strip them and rely on the kf6-core26
-      # content snap's Qt at runtime instead (same Neon apt suite, so
-      # the ABI matches - no separate SDDM rebuild needed). The sddm/
-      # sddm-helper* binaries themselves are kept as staged from apt.
+      # Neon's apt sddm/plasma-setup packages (+ plasma-setup's
+      # plasma-nm/plasma-keyboard deps) pull in their own
+      # libQt6*/libKF6*/plugins/qml via dependency resolution; strip
+      # them and rely on the kf6-core26 content snap's Qt at runtime
+      # instead (same Neon apt suite, so the ABI matches - no separate
+      # rebuild needed). Both packages run unconfined on the host
+      # rather than inside snap confinement (see
+      # kde_sddm_integration/kde_plasma_setup_integration in
+      # ubuntu-core-desktop/build.sh), hence staging them together here
+      # instead of inside the confined plasma-desktop-session content.
+      #
+      # Kept, since they're first-party and not duplicated by the
+      # content snaps: SDDM's own SddmComponents QML theme, and
+      # plasma-setup's own QML modules/KPackages
+      # (qt6/qml/org/kde/plasmasetup/*, the matching
+      # usr/share/plasma/packages/org.kde.plasmasetup.* packages) plus
+      # the qt6/plugins/kf6/packagestructure/plasmasetup.so structure
+      # plugin it loads them through.
       qt_lib_dir="$CRAFT_PRIME/sddm/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
       find "$qt_lib_dir" -maxdepth 1 \( -type f -o -type l \) \
-        -name 'libQt6*.so*' -delete
-      rm -rf "$qt_lib_dir/qt6/plugins"
+        \( -name 'libQt6*.so*' -o -name 'libKF6*.so*' \) -delete
+      find "$qt_lib_dir/qt6/plugins" -mindepth 1 -maxdepth 1 \
+        ! -name kf6 -exec rm -rf {} + 2>/dev/null || true
+      find "$qt_lib_dir/qt6/plugins/kf6" -mindepth 1 -maxdepth 1 \
+        ! -name packagestructure -exec rm -rf {} + 2>/dev/null || true
       find "$qt_lib_dir/qt6/qml" -mindepth 1 -maxdepth 1 \
-        ! -name SddmComponents -exec rm -rf {} +
+        ! -name SddmComponents ! -name org -exec rm -rf {} +
       if find "$CRAFT_PRIME/sddm/usr/lib" \
         \( -type f -o -type l \) -name 'libQt6*.so*' -print -quit | grep -q .; then
-        echo "The SDDM runtime must use Qt libraries from the KDE content snaps"
+        echo "The SDDM/plasma-setup runtime must use Qt libraries from the KDE content snaps"
         exit 1
       fi
