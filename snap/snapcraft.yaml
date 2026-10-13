@@ -794,6 +794,12 @@ parts:
     override-prime: |
       rm -rf "$CRAFT_PRIME/sddm"
       craftctl default
+      # Neon's sddm deb ships only sddm-autologin and sddm-greeter pam
+      # files; the main "sddm" pam service SDDM uses for password login
+      # is missing. Install Ubuntu's vendored copy (snap/pam.d/sddm)
+      # BEFORE the etc->sddm shuffle below moves it into place.
+      install -D -m 0644 "$CRAFT_PROJECT_DIR/snap/pam.d/sddm" \
+        "$CRAFT_PRIME/etc/pam.d/sddm"
       mkdir -p "$CRAFT_PRIME/sddm"
       for path in etc usr var; do
         if [ -e "$CRAFT_PRIME/$path" ]; then
