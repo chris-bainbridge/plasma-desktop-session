@@ -73,6 +73,17 @@ layout:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau
+  # KAuth's BackendsManager does not honour QT_PLUGIN_PATH: it loads
+  # its backend/helper plugins from a hardcoded absolute install
+  # path baked in at compile time (KDE_INSTALL_FULL_QTPLUGINDIR),
+  # which Neon's packaging computes as /usr/lib/.../qt6/plugins/kf6/
+  # kauth. That directory only exists inside the kf6-core26 content
+  # snap, so without this layout KAuth always falls back to its
+  # no-op DummyBackend (seen as "KAuth was compiled with a working
+  # backend, but was unable to load it!"), silently failing every
+  # privileged action (e.g. plasma-setup's CreateUser/SetHostname).
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins/kf6/kauth:
+    symlink: $SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins/kf6/kauth
 
 apps:
   plasma-desktop-session:
@@ -302,6 +313,55 @@ apps:
         - dbus-kde-plasmashell
     restart-delay: 1s
 
+  plasma-setup:
+    # plasma-setup (staged by the sddm-runtime part below) is otherwise
+    # invoked unconfined from the base rootfs, same as its
+    # plasma-setup-bootutil/plasma-setup-auth-helper counterparts (see
+    # that part's override-prime comment and
+    # kde_plasma_setup_integration() in ubuntu-core-desktop/build.sh).
+    # That works for bootutil/auth-helper because they never touch
+    # Wayland, but the GUI wizard itself is a genuine Wayland client
+    # that must render inside the already-running kwin_wayland
+    # compositor session -- and kwin's Wayland socket lives under a
+    # per-snap private directory
+    # (/run/user/<uid>/snap.plasma-desktop-session/wayland-0) that only
+    # processes sharing this snap's mount namespace can see. Run
+    # unconfined, plasma-setup fails with "Failed to create wl_display
+    # (No such file or directory)" no matter how long it waits for a
+    # same-named socket to appear elsewhere -- the path genuinely isn't
+    # visible outside this namespace. Make it a proper app of this snap
+    # instead, sharing the namespace with plasma-kwin-wayland /
+    # plasma-plasmashell. Can't just reuse run-after.sh as-is: this is
+    # launched via plasma-setup's own XDG autostart .desktop entry, not
+    # systemd --user dbus-activation like plasmashell/krunner, so it
+    # never receives WAYLAND_DISPLAY via KUpdateLaunchEnvironmentJob --
+    # and run-after.sh's own fallback (hardcoded "wayland-0") breaks if
+    # kwin has restarted even once this session and picked the next
+    # free display name instead (see run-plasma-setup.sh, which does the
+    # same org.kde.KWin wait but discovers the real socket name instead
+    # of guessing one).
+    command: run-plasma-setup.sh $SNAP/sddm/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/plasma-setup
+    environment:
+      # plasma-setup's own QML modules/KPackages and Qt plugin
+      # (qt6/plugins/kf6/packagestructure/plasmasetup.so) live under
+      # $SNAP/sddm, not $SNAP/plasma or $SNAP/kf6 -- add them on top of
+      # the snap-wide QT_PLUGIN_PATH/QML2_IMPORT_PATH/XDG_DATA_DIRS
+      # rather than instead of them.
+      QT_PLUGIN_PATH: $SNAP/sddm/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins
+      QML2_IMPORT_PATH: $SNAP/sddm/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qml:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qml
+      XDG_DATA_DIRS: $SNAP/sddm/usr/share:$SNAP/plasma/usr/share:$SNAP/kf6/usr/share::/etc/xdg:/var/lib/snapd/desktop
+    plugs:
+      - wayland-client
+      # plasma-setup's CreateUser/SetHostname actions are dispatched via
+      # KAuth to the unconfined, D-Bus-activated org.kde.plasmasetup
+      # helper (see kde_plasma_setup_integration() in build.sh). Without
+      # this, AppArmor denies plasma-setup's confined send of the
+      # org.kde.kf6auth/performAction method call outright -- see the
+      # custom snapd "kde-kauth" interface (the helper process that
+      # actually performs the privileged action runs unconfined, so it
+      # needs no plug of its own).
+      - kde-kauth
+
   plasma-krunner:
     command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/krunner --daemon
     slots:
@@ -482,6 +542,7 @@ plugs:
   hardware-observe: null
   hostname-control: null
   home: null
+  kde-kauth: null
   login-session-observe: null
   login-session-control: null
   mount-observe: null
