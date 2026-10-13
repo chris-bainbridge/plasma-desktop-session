@@ -1,6 +1,6 @@
 name: plasma-desktop-session
 adopt-info: plasma-desktop-session
-base: core26
+base: core26-desktop
 summary: Plasma Desktop Session for KDE Neon Core
 description: |
   Strictly confined Plasma and Ubuntu desktop sessions for KDE Neon Core.
@@ -37,7 +37,15 @@ environment:
   XDG_DESKTOP_PORTAL_DIR: /snap/plasma-core26-desktop/current/usr/share/xdg-desktop-portal
   FONTCONFIG_PATH: $SNAP/plasma/etc/fonts
   PATH: $SNAP/plasma/usr/bin:$SNAP/kf6/usr/bin:$SNAP/kf6/usr/bin/qt6:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
-  LD_LIBRARY_PATH: $SNAP_LIBRARY_PATH:/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/usr/lib:/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/lib:$SNAP/plasma/usr/lib:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sasl2:$SNAP/kf6/usr/lib:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+  # Base (/usr, /lib) paths come LAST in LD_LIBRARY_PATH: the
+  # core26-desktop base ships its own copies of some libraries that the
+  # content snaps also provide (libwayland-server notably, needed by
+  # libkwin at a newer version than the base's), and with the base's
+  # directories first the loader picks the base's older copies, crashing
+  # the session (e.g. "libkwin.so.6: undefined symbol:
+  # wl_global_set_withdrawn_listener"). The content snaps are the
+  # intended desktop runtime, so they must win.
+  LD_LIBRARY_PATH: $SNAP_LIBRARY_PATH:$SNAP/plasma/usr/lib:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sasl2:$SNAP/kf6/usr/lib:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/usr/lib:/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/lib
   QT_PLUGIN_PATH: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/plugins
   QML2_IMPORT_PATH: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qml:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/qml:$SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qml
   # X11 keymap data lives in the kf6-core26 content snap (mounted at
@@ -55,22 +63,24 @@ environment:
 layout:
   /usr/share/X11/xorg.conf.d:
     symlink: $SNAP/plasma/usr/share/X11/xorg.conf.d
-  /usr/share/X11/xkb:
-    symlink: $SNAP/kf6/usr/share/X11/xkb
+  # NOTE: no layout for /usr/share/X11/xkb: the core26-desktop base
+  # ships xkb-data (kept for the host GDM greeter), and a layout
+  # symlink cannot replace existing base content ("existing symbolic
+  # link in the way" from snap-update-ns). The base's xkeyboard-config
+  # is the same resolute data train Neon's is built from, and Qt apps
+  # that must see the content snap's copy set XKB_CONFIG_ROOT above
+  # anyway. Same reasoning for the mesa/glvnd paths below: the base
+  # ships its own egl_vendor.d/gbm/dri for the host greeter, so the
+  # session's GL loaders (Neon, via LD_LIBRARY_PATH above) use the
+  # base's DRI drivers rather than the content snap's copies.
   /usr/share/libinput:
     symlink: $SNAP/plasma/usr/share/libinput
   /usr/share/pipewire:
     symlink: $SNAP/plasma/usr/share/pipewire
-  /usr/share/glvnd/egl_vendor.d:
-    symlink: $SNAP/plasma/usr/share/glvnd/egl_vendor.d
   /usr/bin/xkbcomp:
     symlink: $SNAP/kf6/usr/bin/xkbcomp
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3
-  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gbm:
-    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/gbm
-  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri:
-    symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau
   # KAuth's BackendsManager does not honour QT_PLUGIN_PATH: it loads
