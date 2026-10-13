@@ -267,6 +267,14 @@ apps:
       - login-session-control
       - shutdown
       - system-observe
+      # kscreenlocker_worker runs inside this confined app and uses PAM
+      # (pam_unix/pam_extrausers) to verify the password when locking and
+      # unlocking the screen. PAM execs the setuid/setgid unix_chkpwd and
+      # pam_extrausers_chkpwd helpers to do so, since this process can't
+      # read /etc/shadow or /var/lib/extrausers/shadow directly. Custom
+      # snapd "pam-unix-chkpwd" interface (see build.sh / ubuntu-core-
+      # desktop-snapd).
+      - pam-unix-chkpwd
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -551,6 +559,7 @@ plugs:
   network-observe: null
   network-manager: null
   opengl: null
+  pam-unix-chkpwd: null
   pulseaudio: null
   pipewire: null
   process-control: null
