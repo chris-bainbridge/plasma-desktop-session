@@ -1,4 +1,12 @@
 *.snap
 *.xz
 *~
-.sddm-qt6-stage/
+# .sddm-qt6-stage/sddm-qt6 is build-tools/build-sddm-qt6.sh's output: SDDM
+# rebuilt against the KDE Neon Qt 6.11.1 SDK (the Neon apt sddm package
+# itself is NOT Qt 6.11.1-linked - the binaries require the Qt_6.11
+# versioned symbol, see notes/todo/20261009-build-and-publish-kde-dangerous.txt).
+# That SDK chain is no longer part of the build pipeline, so the verified
+# output is committed instead of gitignored, letting CI and fresh
+# checkouts pack the snap without rebuilding it.
+!.sddm-qt6-stage/
+!.sddm-qt6-stage/**
