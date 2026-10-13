@@ -779,6 +779,11 @@ parts:
           mv "$CRAFT_PRIME/$path" "$CRAFT_PRIME/sddm/$path"
         fi
       done
+      # Neon's apt sddm package pulls in its own libQt6*/plugins/qml via
+      # dependency resolution; strip them and rely on the kf6-core26
+      # content snap's Qt at runtime instead (same Neon apt suite, so
+      # the ABI matches - no separate SDDM rebuild needed). The sddm/
+      # sddm-helper* binaries themselves are kept as staged from apt.
       qt_lib_dir="$CRAFT_PRIME/sddm/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
       find "$qt_lib_dir" -maxdepth 1 \( -type f -o -type l \) \
         -name 'libQt6*.so*' -delete
@@ -790,24 +795,3 @@ parts:
         echo "The SDDM runtime must use Qt libraries from the KDE content snaps"
         exit 1
       fi
-      for path in \
-        usr/bin/sddm \
-        usr/bin/sddm-greeter-qt6 \
-        usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sddm/sddm-helper \
-        usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sddm/sddm-helper-start-wayland \
-        usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/sddm/sddm-helper-start-x11user
-      do
-        source="$CRAFT_STAGE/sddm-qt6/$path"
-        if [[ ! -x "$source" ]]; then
-          echo "Qt 6.11 SDDM build is missing $path"
-          exit 1
-        fi
-        install -D -m 0755 "$source" "$CRAFT_PRIME/sddm/$path"
-      done
-  sddm-qt6-runtime:
-    plugin: dump
-    source: .sddm-qt6-stage
-    after:
-      - sddm-runtime
-    prime:
-      - -sddm-qt6
