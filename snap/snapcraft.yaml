@@ -22,7 +22,11 @@ package-repositories:
     suites:
     - resolute
     key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
-    key-server: keyserver.ubuntu.com
+    # Scheme pinned: gpg reads a bare keyserver.ubuntu.com as hkps, and
+    # the hkps endpoint fails against GnuPG 2.4.8 ("Server indicated a
+    # failure", 2026-10-14). hkp on :80 still works and is the same URL
+    # craft-archives uses as its own fallback keyserver.
+    key-server: hkp://keyserver.ubuntu.com:80
     url: http://origin.archive.neon.kde.org/unstable
     priority: always
 
