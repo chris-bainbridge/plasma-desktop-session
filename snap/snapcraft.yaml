@@ -194,27 +194,6 @@ apps:
         - dbus-kde-shutdown
     restart-condition: never
 
-  plasma-kcminit:
-    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/kcminit_startup
-    environment:
-      QT_QPA_PLATFORM: wayland
-    slots:
-      - wayland
-      - x11-server
-      - desktop
-    plugs:
-      - systemd-user-control
-      - wayland-client
-      - x11
-    after:
-      - plasma-kwin-wayland
-    daemon: forking
-    passthrough:
-      daemon-scope: user
-      activates-on:
-        - dbus-kde-kcminit
-    restart-condition: never
-
   plasma-ksmserver:
     command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/ksmserver
     environment:
@@ -229,7 +208,6 @@ apps:
       - x11
     after:
       - plasma-kwin-wayland
-      - plasma-kcminit
     daemon: dbus
     passthrough:
       daemon-scope: user
@@ -674,10 +652,6 @@ slots:
     interface: dbus
     bus: session
     name: org.kde.keyboard
-  dbus-kde-kcminit:
-    interface: dbus
-    bus: session
-    name: org.kde.kcminit
   dbus-kde-kaccess:
     interface: dbus
     bus: session

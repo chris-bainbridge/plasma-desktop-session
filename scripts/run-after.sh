@@ -52,26 +52,19 @@ if [ -n "${PLASMA_WAIT_FOR_KWIN_OUTPUT:-}" ]; then
     fi
 fi
 
-# kwin_wayland_wrapper creates the Wayland socket (named wayland-0 here, the
-# first free slot) and exports WAYLAND_DISPLAY/DISPLAY/XAUTHORITY through
-# KUpdateLaunchEnvironmentJob, which updates the *systemd user manager*
-# environment. A daemon:simple app pulled in at default.target (e.g. the
-# polkit auth agent) is spawned by `snap run` *before* that export lands and
-# therefore inherits a stale environment missing WAYLAND_DISPLAY. Qt then
-# falls back to the xcb platform plugin via DISPLAY, xcb_connect() to the
-# not-yet-ready Xwayland fails, and the app crash-loops ("could not connect
-# to display", "Could not load the Qt platform plugin \"xcb\"").
-#
-# We have just waited on $SERVICE (kwin is up, so its socket exists). Set
-# WAYLAND_DISPLAY explicitly so Qt selects the wayland platform plugin
-# instead of xcb. (The confined shell cannot read systemd's manager
-# environment: `systemctl --user`/`busctl --user` are blocked by AppArmor, so
-# we can't re-read KUpdateLaunchEnvironmentJob's result and instead use the
-# fixed socket name the wrapper always picks.) Pick up Xauthority from the
-# runtime dir as a fallback for any X11 path.
-if [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    export WAYLAND_DISPLAY=wayland-0
-fi
+# kwin_wayland_wrapper exports WAYLAND_DISPLAY/DISPLAY/XAUTHORITY through
+# KUpdateLaunchEnvironmentJob into the *systemd user manager* environment,
+# but only after its compositor is up. Units started before that (e.g. the
+# polkit auth agent, ksplash) inherit a stale environment: their first
+# attempt dies in Qt platform-plugin init and succeeds when systemd restarts
+# them once the export lands (delivered via systemd-user-control's
+# UnsetAndSetEnvironment; the dedicated systemd-user-environment plug is the
+# pending proper fix). No in-script fallback is possible: the confined shell
+# cannot read the manager env (`systemctl --user`/`busctl --user` are
+# AppArmor-blocked), and the old fixed WAYLAND_DISPLAY=wayland-0 export
+# targeted a dead symlink (kwin's socket is wayland-1 inside the
+# snap-private runtime dir).
+# Pick up Xauthority from the runtime dir as a fallback for any X11 path.
 if [ -z "${XAUTHORITY:-}" ] && [ -d "${XDG_RUNTIME_DIR:-}" ]; then
     for f in "$XDG_RUNTIME_DIR"/xauth_*; do
         [ -e "$f" ] || continue
