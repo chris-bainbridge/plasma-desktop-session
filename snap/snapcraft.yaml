@@ -27,7 +27,7 @@ package-repositories:
     # failure", 2026-10-14). hkp on :80 still works and is the same URL
     # craft-archives uses as its own fallback keyserver.
     key-server: hkp://keyserver.ubuntu.com:80
-    url: http://origin.archive.neon.kde.org/unstable
+    url: http://origin.archive.neon.kde.org/release
     priority: always
 
 environment:
