@@ -317,6 +317,16 @@ apps:
       - login-session-observe
       - shutdown
       - system-observe
+      # KCMs load in-process into plasmashell (e.g. kcm_clock's Date &
+      # Time page); without timezone-control their timedated access is
+      # AppArmor-denied, so the page shows nothing and polkit is never
+      # consulted (no auth prompt, no change). Grants Properties.Get,
+      # ListTimezones and SetTimezone on /org/freedesktop/timedate1;
+      # set-timezone is auth_admin_keep, so applying a timezone pops the
+      # polkit prompt. NOTE: SetTime/SetNTP are NOT granted by this
+      # interface -- the manual-time fields and the NTP toggle still
+      # fail (would need a snapd fork interface extension).
+      - timezone-control
     after:
       - plasma-kwin-wayland
     daemon: dbus
