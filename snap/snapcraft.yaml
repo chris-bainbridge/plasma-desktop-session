@@ -109,6 +109,13 @@ apps:
     plugs:
       - locale-control
       - systemd-user-control
+      # startplasma-wayland pushes DISPLAY/WAYLAND_DISPLAY etc. into the
+      # session bus activation env + the systemd --user manager env;
+      # without this plug both calls are AppArmor-denied and the env only
+      # lands later via kwin's UnsetAndSetEnvironment, so units activated
+      # before that (ksplash, the polkit agent) inherit a stale env and
+      # die on their first attempt.
+      - systemd-user-environment
 
   xdg-desktop-portal-kde:
     command: run-after-portal.sh org.kde.KWinWrapper $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libexec/xdg-desktop-portal-kde
@@ -145,7 +152,11 @@ apps:
     restart-delay: 1s
 
   plasma-ksplash:
-    command: run-after.sh org.kde.KWinWrapper $SNAP/plasma/usr/bin/ksplashqml
+    # Wait on org.kde.KWin, not org.kde.KWinWrapper: the wrapper claims
+    # KWinWrapper before the compositor serves anything, so a wrapper-wait
+    # releases ksplash too early (same reasoning as the plasmashell and
+    # polkit-agent apps).
+    command: run-after.sh org.kde.KWin $SNAP/plasma/usr/bin/ksplashqml
     slots:
       - wayland
       - x11-server
@@ -204,6 +215,7 @@ apps:
       - desktop
     plugs:
       - systemd-user-control
+      - systemd-user-environment
       - wayland-client
       - x11
     after:
@@ -253,6 +265,7 @@ apps:
     # a black screen while systemd-logind retains DRM master.
     plugs:
       - systemd-user-control
+      - systemd-user-environment
       - wayland-client
       - opengl
       - login-session-observe

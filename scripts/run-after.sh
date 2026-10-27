@@ -53,17 +53,22 @@ if [ -n "${PLASMA_WAIT_FOR_KWIN_OUTPUT:-}" ]; then
 fi
 
 # kwin_wayland_wrapper exports WAYLAND_DISPLAY/DISPLAY/XAUTHORITY through
-# KUpdateLaunchEnvironmentJob into the *systemd user manager* environment,
-# but only after its compositor is up. Units started before that (e.g. the
-# polkit auth agent, ksplash) inherit a stale environment: their first
-# attempt dies in Qt platform-plugin init and succeeds when systemd restarts
-# them once the export lands (delivered via systemd-user-control's
-# UnsetAndSetEnvironment; the dedicated systemd-user-environment plug is the
-# pending proper fix). No in-script fallback is possible: the confined shell
-# cannot read the manager env (`systemctl --user`/`busctl --user` are
-# AppArmor-blocked), and the old fixed WAYLAND_DISPLAY=wayland-0 export
-# targeted a dead symlink (kwin's socket is wayland-1 inside the
-# snap-private runtime dir).
+# KUpdateLaunchEnvironmentJob into the *systemd user manager* environment
+# (UpdateActivationEnvironment/UnsetAndSetEnvironment, granted by the
+# systemd-user-environment and systemd-user-control plugs), but only once
+# its compositor is up, so units started before that can still inherit a
+# stale environment. Fallback: discover the real Wayland socket under
+# $XDG_RUNTIME_DIR instead of hardcoding a name -- snap run gives each app
+# its snap-private runtime dir and kwin's socket lives there (the public
+# wayland-0 name is a dead symlink, and the private socket number is not
+# fixed). Only exported when unset, so the manager env wins once landed.
+if [ -z "${WAYLAND_DISPLAY:-}" ] && [ -d "${XDG_RUNTIME_DIR:-}" ]; then
+    for sock in "$XDG_RUNTIME_DIR"/wayland-*; do
+        [ -S "$sock" ] || continue
+        export WAYLAND_DISPLAY="${sock##*/}"
+        break
+    done
+fi
 # Pick up Xauthority from the runtime dir as a fallback for any X11 path.
 if [ -z "${XAUTHORITY:-}" ] && [ -d "${XDG_RUNTIME_DIR:-}" ]; then
     for f in "$XDG_RUNTIME_DIR"/xauth_*; do
