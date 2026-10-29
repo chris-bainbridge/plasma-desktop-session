@@ -87,17 +87,21 @@ layout:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pipewire-0.3
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau:
     symlink: $SNAP/plasma/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/vdpau
-  # KAuth's BackendsManager does not honour QT_PLUGIN_PATH: it loads
-  # its backend/helper plugins from a hardcoded absolute install
-  # path baked in at compile time (KDE_INSTALL_FULL_QTPLUGINDIR),
-  # which Neon's packaging computes as /usr/lib/.../qt6/plugins/kf6/
-  # kauth. That directory only exists inside the kf6-core26 content
-  # snap, so without this layout KAuth always falls back to its
-  # no-op DummyBackend (seen as "KAuth was compiled with a working
-  # backend, but was unable to load it!"), silently failing every
-  # privileged action (e.g. plasma-setup's CreateUser/SetHostname).
-  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins/kf6/kauth:
-    symlink: $SNAP/kf6/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins/kf6/kauth
+  # NOTE: no layout for /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
+  # qt6/plugins/kf6/kauth either, even though KAuth's
+  # BackendsManager loads its backend/helper plugins from exactly
+  # that hardcoded absolute path (KDE_INSTALL_FULL_QTPLUGINDIR, not
+  # honoured via QT_PLUGIN_PATH): the image bakes a rootfs symlink
+  # for the same path straight at the kf6 content snap's fixed
+  # /snap mount (ubuntu-core-desktop build.sh,
+  # kde_sddm_integration), so confined apps resolve the path through
+  # the base rootfs anyway, and a layout: symlink here would
+  # collide with it -- snap-update-ns aborts every confined app of
+  # this snap with "existing symbolic link in the way" unless the
+  # layout target and the existing symlink are byte-identical, which
+  # they can never be (a layout target must be $SNAP-relative; the
+  # image's symlink must point at the /snap content mount, visible
+  # to the unconfined host-namespace KAuth helper processes too).
 
 apps:
   plasma-desktop-session:
