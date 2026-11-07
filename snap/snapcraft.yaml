@@ -331,6 +331,15 @@ apps:
       # interface -- the manual-time fields and the NTP toggle still
       # fail (would need a snapd fork interface extension).
       - timezone-control
+      # Everything plasmashell launches (konsole included) inherits this
+      # profile; without systemd-user-control the snap CLI's
+      # /run/snapd.socket connect is AppArmor-denied, so `snap refresh
+      # --list` et al hang 120s then fail ("connect: permission denied").
+      # The plug is gadget-statically-connected snap-wide (build.sh
+      # kde simple_plugs) and the fork's interface grants
+      # /run/snapd.socket rw -- only the app-level declaration was
+      # missing (kwin/ksmserver/session already plug it).
+      - systemd-user-control
     after:
       - plasma-kwin-wayland
     daemon: dbus
