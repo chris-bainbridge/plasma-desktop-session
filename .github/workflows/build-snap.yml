@@ -20,7 +20,7 @@ jobs:
     # re-pin to 26.04 once the archive is reachable from CI again.
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y fakeroot squashfs-tools
       - name: Set up LXD (mirrors snapcore/action-build)
@@ -60,7 +60,7 @@ jobs:
                  --title "desktop/26 latest snap" \
                  --notes "Rolling latest desktop/26 snap build; assets are replaced on every green build."
           gh release upload desktop-26-latest plasma-desktop-session.snap -R "$GITHUB_REPOSITORY" --clobber
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: snap
           path: plasma-desktop-session.snap
