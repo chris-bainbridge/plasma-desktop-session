@@ -11,14 +11,14 @@ permissions:
 
 jobs:
   snap:
-    # 24.04, unlike every other snap producer here: this project installs
-    # build-packages inside snapcraft's LXD instance, which means an apt
-    # refresh against the KDE neon archive - and that archive is not
-    # reliably fetchable from GitHub runners ("Failed to refresh package
-    # list: failed to run apt update", or a single failed package fetch),
-    # on 24.04 and 26.04 alike. Stay on the last known-good runner and
-    # re-pin to 26.04 once the archive is reachable from CI again.
-    runs-on: ubuntu-24.04
+    # 26.04, like every other snap producer here. The retry loop below
+    # exists because this project installs build-packages inside
+    # snapcraft's LXD instance, which forces an apt refresh against the
+    # KDE neon archive; that archive was intermittently unreachable from
+    # GitHub runners during the 2026-11-21 outage, and the failure was
+    # transient rather than runner-specific (it hit 24.04 and 26.04
+    # alike).
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v5
       - name: Install build dependencies
