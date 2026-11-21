@@ -11,7 +11,14 @@ permissions:
 
 jobs:
   snap:
-    runs-on: ubuntu-26.04
+    # 24.04, unlike every other snap producer here: on the 26.04
+    # runner snapcraft's LXD build instance cannot refresh its
+    # package lists ("Failed to refresh package list: failed to run
+    # apt update", deterministically, across three retries), and this
+    # project is the one that needs build-packages installed in the
+    # instance. The provider snaps on 26.04 do not hit that path.
+    # Revisit when the 26.04 image or snapcraft handles it.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install build dependencies
