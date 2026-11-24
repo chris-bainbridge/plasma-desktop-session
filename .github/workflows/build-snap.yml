@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - desktop/26
+  # The staged Neon debs float on the release/resolute suite, which moves
+  # without any commit here. A daily rebuild keeps the published snap
+  # fresh and converges with kf6-core26, which rebuilds this repository
+  # whenever its Qt/KF6 runtime changes.
+  schedule:
+    - cron: '37 3 * * *'
   workflow_dispatch:
 
 permissions:
